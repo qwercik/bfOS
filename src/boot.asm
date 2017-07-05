@@ -1,13 +1,14 @@
 [BITS 16]
 [ORG 0x7C00]
 
-jmp 0x0000:start
+jmp start
 
-;
-; Data for filesystem
-;
+%include "bpb.asm"
 
 start:
+	jmp word 0x0000:reload_cs
+
+reload_cs:
 	; Set up data segment registers
 	xor ax, ax
 	mov ds, ax
@@ -24,6 +25,7 @@ start:
 	mov ax, 3
 	int 0x10
 	
+	; Set up loops counter
 	xor cx, cx
 
 	; ES:DI is array pointer
@@ -33,6 +35,7 @@ start:
 	; DS:SI is code pointer
 	; DS = 0x0000
 	mov si, source_code
+
 	call bf_interpreter
 
 	jmp $
