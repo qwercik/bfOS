@@ -1,10 +1,6 @@
 [BITS 16]
 [ORG 0x7C00]
 
-jmp start
-
-%include "bpb.asm"
-
 start:
 	jmp word 0x0000:reload_cs
 
@@ -34,13 +30,10 @@ reload_cs:
 	
 	; DS:SI is code pointer
 	; DS = 0x0000
-	mov si, source_code
-
-	call bf_interpreter
+	;mov si, source_code
 
 	jmp $
 
-source_code db "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.", 0
 
 %include "bf.asm"
 
