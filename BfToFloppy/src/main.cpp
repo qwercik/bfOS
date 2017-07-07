@@ -7,7 +7,7 @@
 
 int main(int argc, char* argv[])
 {
-	if (argc != 3)
+	if (argc != 3 && argc != 4)
 	{
 		std::cerr << "Incorrect usage.\n";
 		std::cerr << "Use: " << argv[0] << " floppy.img code.bf\n";
@@ -16,7 +16,13 @@ int main(int argc, char* argv[])
 
 	std::string floppyImageFilename = argv[1];
 	std::string codeFilename = argv[2];
+	std::string mbrFilename = "bfOS.img";
 	
+	if (argc == 4)
+	{
+		mbrFilename = argv[3];
+	}
+
 	try
 	{
 		btf::FloppyImage floppyImage(floppyImageFilename);

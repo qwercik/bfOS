@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cstdint>
 
 namespace btf
 {
@@ -18,6 +19,6 @@ namespace btf
 		void assignCode(const std::string& codeFilename);
 
 		std::ofstream imageFile;
-		std::vector<char> imageFileContent;
+		std::vector<uint8_t> imageFileContent;
 	};
 }
