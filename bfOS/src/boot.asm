@@ -16,7 +16,7 @@ start:
 	mov es, bx
 	xor bx, bx
 	mov ah, 2
-	dd 0xBFC0DE ; Flag for bfOS image tool - there will be mov al, sectors_amount
+	dd 0xBFC0DE ; Flag for bfOS image tool - there will be: mov al, sectors_amount and 2 nops for padding
 	xor ch, ch
 	mov cl, 2
 	xor dh, dh
@@ -51,7 +51,7 @@ read_error:
 	call print_string
 	jmp $
 
-msg_read_error db "Couldn\'t read brainfuck code", 0
+msg_read_error db "Couldn't read brainfuck code", 0
 
 %include "screen.asm"
 %include "bf.asm"
