@@ -1,3 +1,6 @@
+%ifndef BF_ASM
+%define BF_ASM
+
 bf_interpreter:
 	; DS:SI is pointer to code
 	lodsb
@@ -46,9 +49,7 @@ bf_minus:
 
 bf_print_char:
 	mov al, byte [es:di]
-	mov ah, 0xE
-	mov bx, 0x0007
-	int 0x10
+	call print_char
 	jmp bf_interpreter
 
 bf_get_char:
@@ -101,3 +102,7 @@ bf_loop_end:
 	.ptr_zero:
 		add sp, 2
 		jmp bf_interpreter
+
+%include "screen.asm"
+
+%endif
