@@ -9,16 +9,12 @@ start:
 	mov ss, ax
 	mov sp, 0x1000
 
-	; Clear screen
-	mov ax, 3
-	int 0x10
-
+	call clear_screen
+	
 	; Reading brainfuck code to memory
-	; Data buffer - 0x07E0:0x0000
 	mov bx, 0x07E0
 	mov es, bx
 	xor bx, bx
-
 	mov ah, 2
 	dd 0xBFC0DE ; Flag for bfOS image tool - there will be mov al, sectors_amount
 	xor ch, ch
