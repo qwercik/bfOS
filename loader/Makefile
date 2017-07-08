@@ -1,11 +1,11 @@
 ASM = nasm
 ASM_PARAMS = -i src/
 
-all: bfOS.img
+all: loader.bin
 
-bfOS.img: src/boot.asm
+loader.bin: src/boot.asm
 	$(ASM) -o $@ $^ $(ASM_PARAMS)
 
 clean:
-	rm bfOS.img
+	rm loader.bin
 

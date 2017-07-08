@@ -11,7 +11,15 @@ print_char:
 	xor bh, bh
 	mov bl, 0x07
 	int 0x10
-	ret
+
+	; Code for "change" CRLF to LF
+	cmp al, 0xA
+	jne .end
+	mov al, 0xD
+	call print_char
+
+	.end:
+		ret
 
 print_string:
 	lodsb 

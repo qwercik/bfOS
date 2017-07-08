@@ -1,6 +1,8 @@
 %ifndef BF_ASM
 %define BF_ASM
 
+DATA_ARRAY_SIZE equ 30000
+
 bf_interpreter:
 	; DS:SI is pointer to code
 	lodsb
@@ -28,12 +30,18 @@ bf_interpreter:
 		ret
 
 bf_right:
-	inc di	
-	jmp bf_interpreter
+	cmp di, DATA_ARRAY_SIZE - 1
+	je .end
+		inc di
+	.end:
+		jmp bf_interpreter
 
 bf_left:
-	dec di
-	jmp bf_interpreter
+	cmp di, 0
+	je .end
+		dec di
+	.end:
+		jmp bf_interpreter
 
 bf_plus:
 	mov bl, byte [es:di]
@@ -59,8 +67,6 @@ bf_get_char:
 	jmp bf_interpreter
 
 bf_loop_start:
-	inc cx
-
 	mov bl, byte [es:di]
 	cmp bl, 0
 	je .ptr_zero
@@ -73,35 +79,33 @@ bf_loop_start:
 
 	.ptr_zero:
 		lodsb
+		cmp cx, 0
+		jne .check_characters
 		cmp al, ']'
-		je .end_of_loop_char
-		jmp .ptr_zero
-
-		.end_of_loop_char:
-			dec cx
-
-			cmp cx, 0
-			je .matching_loop_end
+		je .end
+		
+		.check_characters:
+			cmp al, '['
+			je .start_of_loop_char
+			cmp al, ']'
+			je .end_of_loop_char
 			jmp .ptr_zero
 
-			.matching_loop_end:
-				dec si
-				jmp bf_interpreter
+			.start_of_loop_char:
+				inc cx
+				jmp .ptr_zero
+
+			.end_of_loop_char:
+				dec cx
+				jmp .ptr_zero
+		
+	.end:
+		jmp bf_interpreter
 
 bf_loop_end:
-	dec cx
+	pop si
+	jmp bf_interpreter
 
-	mov bl, byte [es:di]
-	cmp bl, 0
-	je .ptr_zero
-	
-	.ptr_non_zero:
-		pop si
-		jmp bf_interpreter
-
-	.ptr_zero:
-		add sp, 2
-		jmp bf_interpreter
 
 %include "screen.asm"
 
