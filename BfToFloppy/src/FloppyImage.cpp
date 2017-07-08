@@ -17,23 +17,23 @@ namespace btf
 			throw Error("Couldn\'t open floppy image file to write");
 	}
 
-	void FloppyImage::create(const std::string& codeFilename, std::string mbrFilename)
+	void FloppyImage::create(const std::string& codeFilename, const std::string& loaderFilename)
 	{
 		// Fills image with zeros to 1.44MB
 		imageFileContent.assign(1474560, 0);
 		
-		overwriteMbr(mbrFilename);
+		overwriteMbr(loaderFilename);
 		assignCode(codeFilename);		
 
 		std::copy(imageFileContent.begin(), imageFileContent.end(), std::ostreambuf_iterator<char>(imageFile));
 	}
 
-	void FloppyImage::overwriteMbr(const std::string& mbrFilename)
+	void FloppyImage::overwriteMbr(const std::string& loaderFilename)
 	{
-		std::ifstream mbrFile(mbrFilename, std::ios::binary);
+		std::ifstream mbrFile(loaderFilename, std::ios::binary);
 
 		if (!mbrFile.is_open())
-			throw Error("Couldn\'t find MBR file: " + mbrFilename);
+			throw Error("Couldn\'t find MBR file: " + loaderFilename);
 
 		std::vector<char> mbr((std::istreambuf_iterator<char>(mbrFile)), std::istreambuf_iterator<char>());
 		
@@ -68,7 +68,7 @@ namespace btf
 		if (iterator == imageFileContent.end())
 			throw Error("MBR file doesn\'t contain 0xBFC0DE flag");
 
-		std::vector<uint8_t> opcode = {0xB0, sectorsAmount & 0xFF, 0x90, 0x90};
+		std::vector<uint8_t> opcode = {0xB0, static_cast<uint8_t>(sectorsAmount & 0xFF), 0x90, 0x90};
 		imageFileContent.erase(iterator, iterator + 4);
 		imageFileContent.insert(iterator, opcode.begin(), opcode.end());
 	}

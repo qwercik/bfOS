@@ -12,10 +12,10 @@ namespace btf
 	public:
 		FloppyImage(const std::string& filename);
 		
-		void create(const std::string& codeFilename, std::string mbrFilename = "bfOS.img");
+		void create(const std::string& codeFilename, const std::string& loaderFilename);
 
 	private:
-		void overwriteMbr(const std::string& mbrFilename);
+		void overwriteMbr(const std::string& loaderFilename);
 		void assignCode(const std::string& codeFilename);
 
 		std::ofstream imageFile;
