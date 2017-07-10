@@ -15,7 +15,7 @@ namespace btf
 		void create(const std::string& codeFilename, const std::string& loaderFilename);
 
 	private:
-		void overwriteMbr(const std::string& loaderFilename);
+		void overwriteMbr(const std::string& mbrFilename);
 		void assignCode(const std::string& codeFilename);
 
 		std::ofstream imageFile;

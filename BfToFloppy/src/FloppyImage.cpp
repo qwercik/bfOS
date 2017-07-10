@@ -14,26 +14,26 @@ namespace btf
 		imageFile.open(filename, std::ios::binary);
 
 		if (!imageFile.is_open())
-			throw Error("Couldn\'t open floppy image file to write");
+			throw Error("Couldn\'t open floppy image file (" + filename + ") to write");
 	}
 
-	void FloppyImage::create(const std::string& codeFilename, const std::string& loaderFilename)
+	void FloppyImage::create(const std::string& codeFilename, const std::string& mbrFilename)
 	{
 		// Fills image with zeros to 1.44MB
 		imageFileContent.assign(1474560, 0);
 		
-		overwriteMbr(loaderFilename);
+		overwriteMbr(mbrFilename);
 		assignCode(codeFilename);		
 
 		std::copy(imageFileContent.begin(), imageFileContent.end(), std::ostreambuf_iterator<char>(imageFile));
 	}
 
-	void FloppyImage::overwriteMbr(const std::string& loaderFilename)
+	void FloppyImage::overwriteMbr(const std::string& mbrFilename)
 	{
-		std::ifstream mbrFile(loaderFilename, std::ios::binary);
+		std::ifstream mbrFile(mbrFilename, std::ios::binary);
 
 		if (!mbrFile.is_open())
-			throw Error("Couldn\'t find MBR file: " + loaderFilename);
+			throw Error("Couldn\'t find MBR file: " + mbrFilename);
 
 		std::vector<char> mbr((std::istreambuf_iterator<char>(mbrFile)), std::istreambuf_iterator<char>());
 		
@@ -46,13 +46,13 @@ namespace btf
 		std::ifstream codeFile(codeFilename);
 
 		if (!codeFile.is_open())
-			throw Error("Couldn\'t open file with brainfuck source code.");
+			throw Error("Couldn\'t open file (" + codeFilename + ") with brainfuck source code.");
 
 		std::string code;
 		std::getline(codeFile, code, '\0');
 		
 		if (code.size() == 0)
-			throw Error("File with brainfuck source code is empty");
+			throw Error("File(" + codeFilename + ") with brainfuck source code is empty");
 
 		if (code.size() > 65536)
 			throw Error("Accteptable brainfuck source code size is 64KiB");
@@ -60,7 +60,7 @@ namespace btf
 		imageFileContent.erase(imageFileContent.begin() + 512, imageFileContent.begin() + 512 + code.size());
 		imageFileContent.insert(imageFileContent.begin() + 512, code.begin(), code.end());
 
-		uint8_t sectorsAmount = std::ceil(static_cast<float>(code.size()) / 512);
+		uint8_t sectorsAmount = std::ceil(code.size() / 512.0);
 		
 		std::vector<uint8_t> flag = {0xDE, 0xC0, 0xBF, 0x00};
 		auto iterator = std::search(imageFileContent.begin(), imageFileContent.end(), flag.begin(), flag.end()); 

@@ -22,16 +22,16 @@ int main(int argc, char* argv[])
 
 	std::string floppyImageFilename = argv[1];
 	std::string codeFilename = argv[2];
-	std::string loaderFilename = "loader.bin";
+	std::string mbrFilename = "loader.bin";
 
 	try
 	{
 		btf::FloppyImage floppyImage(floppyImageFilename);
-		floppyImage.create(codeFilename, loaderFilename);
+		floppyImage.create(codeFilename, mbrFilename);
 	}
 	catch (btf::Error& error)
 	{
-		std::cerr << "An error has ocurred\n";
+		std::cerr << "An error has ocurred.\n";
 		std::cerr << "Message: " << error.what() << "\n";
 		return EXIT_FAILURE;
 	}

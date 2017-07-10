@@ -82,7 +82,7 @@ bf_loop_start:
 		cmp cx, 0
 		jne .check_characters
 		cmp al, ']'
-		jmp bf_interpreter
+		je bf_interpreter
 
 		.check_characters:
 			cmp al, '['
@@ -103,7 +103,7 @@ bf_loop_end:
 	mov bl, byte [es:di]
 	cmp bl, 0
 	je .ptr_zero
-	
+
 	.ptr_non_zero:
 		pop si
 		jmp bf_interpreter
