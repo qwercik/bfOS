@@ -8,10 +8,8 @@ start:
 	mov ax, 0x06C0
 	mov ss, ax
 	mov sp, 0x1000
-
 	
 	call clear_screen
-	
 
 	; Reading brainfuck code to memory
 
@@ -29,23 +27,6 @@ start:
 	int 0x13
 
 	jc read_error
-
-	; Set up segment for brainfuck code
-	mov ax, 0x07E0
-	mov ds, ax
-
-	; Set up brainfuck code pointer
-	xor si, si
-
-	; Set up segment for brainfuck array
-	mov ax, 0x2000
-	mov es, ax
-	
-	; Set up brainfuck array pointer
-	xor di, di
-
-	; Set up brainfuck loops counter
-	xor cx, cx
 
 	call bf_interpreter
 	jmp $
