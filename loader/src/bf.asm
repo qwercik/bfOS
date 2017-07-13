@@ -9,8 +9,11 @@ bf_interpreter:
 	mov es, ax
 	xor di, di
 	
+	xor ax, ax
 	mov cx, DATA_ARRAY_SIZE
-	call memset
+
+	; Something like memset(0x20000, 0, DATA_ARRAY_SIZE)
+	rep stosb
 
 	; Set up segment for brainfuck code
 	mov ax, 0x07E0
@@ -142,6 +145,5 @@ bf_loop_end:
 		jmp bf_interpreter_loop
 
 %include "screen.asm"
-%include "memory.asm"
 
 %endif
