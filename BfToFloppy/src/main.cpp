@@ -22,12 +22,12 @@ int main(int argc, char* argv[])
 
 	std::string floppyImageFilename = argv[1];
 	std::string codeFilename = argv[2];
-	std::string mbrFilename = "loader.bin";
+	std::string loaderFilename = "loader.bin";
 
 	try
 	{
-		btf::FloppyImage floppyImage(floppyImageFilename);
-		floppyImage.create(codeFilename, mbrFilename);
+		btf::FloppyImage floppyImage(codeFilename, loaderFilename);
+		floppyImage.writeToFile(floppyImageFilename);
 	}
 	catch (btf::Error& error)
 	{

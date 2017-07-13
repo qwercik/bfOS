@@ -1,4 +1,5 @@
 #include <string>
+#include <fstream>
 #include <algorithm>
 #include <iterator>
 #include <cstdint>
@@ -9,39 +10,39 @@
 
 namespace btf
 {
-	FloppyImage::FloppyImage(const std::string& filename)
+	FloppyImage::FloppyImage(const std::string& codeFilename, const std::string& loaderFilename)
 	{
-		imageFile.open(filename, std::ios::binary);
+		imageFileContent.assign(FLOPPY_SIZE, 0);
 
-		if (!imageFile.is_open())
-			throw Error("Couldn\'t open floppy image file (" + filename + ") to write");
+		writeLoader(loaderFilename);
+		int codeSize = assignCode(codeFilename);
+		replaceFlagWithMachineCode(codeSize);
 	}
 
-	void FloppyImage::create(const std::string& codeFilename, const std::string& mbrFilename)
+	void FloppyImage::writeToFile(const std::string& floppyImageFilename)	
 	{
-		// Fills image with zeros to 1.44MB
-		imageFileContent.assign(1474560, 0);
-		
-		overwriteMbr(mbrFilename);
-		assignCode(codeFilename);		
+		std::ofstream imageFile(floppyImageFilename, std::ios::binary);
+
+		if (!imageFile.is_open())
+			throw Error("Couldn\'t open floppy image file (" + floppyImageFilename + ") to write");
 
 		std::copy(imageFileContent.begin(), imageFileContent.end(), std::ostreambuf_iterator<char>(imageFile));
 	}
 
-	void FloppyImage::overwriteMbr(const std::string& mbrFilename)
+	void FloppyImage::writeLoader(const std::string& loaderFilename)
 	{
-		std::ifstream mbrFile(mbrFilename, std::ios::binary);
+		std::ifstream loaderFile(loaderFilename, std::ios::binary);
 
-		if (!mbrFile.is_open())
-			throw Error("Couldn\'t find MBR file: " + mbrFilename);
+		if (!loaderFile.is_open())
+			throw Error("Couldn\'t find MBR file: " + loaderFilename);
 
-		std::vector<char> mbr((std::istreambuf_iterator<char>(mbrFile)), std::istreambuf_iterator<char>());
+		std::vector<char> loader((std::istreambuf_iterator<char>(loaderFile)), std::istreambuf_iterator<char>());
 		
-		imageFileContent.erase(imageFileContent.begin(), imageFileContent.begin() + 512);
-		imageFileContent.insert(imageFileContent.begin(), mbr.begin(), mbr.end());
+		imageFileContent.erase(imageFileContent.begin(), imageFileContent.begin() + loader.size());
+		imageFileContent.insert(imageFileContent.begin(), loader.begin(), loader.end());
 	}
 	
-	void FloppyImage::assignCode(const std::string& codeFilename)
+	int FloppyImage::assignCode(const std::string& codeFilename)
 	{
 		std::ifstream codeFile(codeFilename);
 
@@ -60,15 +61,27 @@ namespace btf
 		imageFileContent.erase(imageFileContent.begin() + 512, imageFileContent.begin() + 512 + code.size());
 		imageFileContent.insert(imageFileContent.begin() + 512, code.begin(), code.end());
 
-		uint8_t sectorsAmount = std::ceil(code.size() / 512.0);
+		return code.size();
+	}
+
+	void FloppyImage::replaceFlagWithMachineCode(int codeSize)
+	{
+		uint8_t sectorsAmount = std::ceil(codeSize / 512.0);
 		
 		std::vector<uint8_t> flag = {0xDE, 0xC0, 0xBF, 0x00};
-		auto iterator = std::search(imageFileContent.begin(), imageFileContent.end(), flag.begin(), flag.end()); 
+		auto iterator = std::search(imageFileContent.begin(), imageFileContent.end(), flag.begin(), flag.end());
 
 		if (iterator == imageFileContent.end())
-			throw Error("MBR file doesn\'t contain 0xBFC0DE flag");
+			throw Error("Loader file doesn\'t contain 0xBFC0DE flag");
 
+		/* Opcode as asm mnemonics:
+		 * mov al, sectorsAmount
+		 * nop
+		 * nop
+		 */
+		
 		std::vector<uint8_t> opcode = {0xB0, static_cast<uint8_t>(sectorsAmount & 0xFF), 0x90, 0x90};
+		
 		imageFileContent.erase(iterator, iterator + 4);
 		imageFileContent.insert(iterator, opcode.begin(), opcode.end());
 	}

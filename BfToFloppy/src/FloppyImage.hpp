@@ -1,6 +1,5 @@
 #pragma once
 
-#include <fstream>
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -10,15 +9,17 @@ namespace btf
 	class FloppyImage
 	{
 	public:
-		FloppyImage(const std::string& filename);
-		
-		void create(const std::string& codeFilename, const std::string& loaderFilename);
+		FloppyImage(const std::string& codeFilename, const std::string& loaderFilename);
+
+		void writeToFile(const std::string& floppyImageFilename);
 
 	private:
-		void overwriteMbr(const std::string& mbrFilename);
-		void assignCode(const std::string& codeFilename);
+		void writeLoader(const std::string& loaderFilename);
+		int assignCode(const std::string& codeFilename);
+		void replaceFlagWithMachineCode(int brainfuckCodeSize);
 
-		std::ofstream imageFile;
 		std::vector<uint8_t> imageFileContent;
+
+		const int FLOPPY_SIZE = 1474560;
 	};
 }
