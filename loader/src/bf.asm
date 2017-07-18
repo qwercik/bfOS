@@ -4,17 +4,6 @@
 DATA_ARRAY_SIZE equ 30000
 
 bf_interpreter:
-	; Set up data for memset
-	mov ax, 0x2000
-	mov es, ax
-	xor di, di
-	
-	xor ax, ax
-	mov cx, DATA_ARRAY_SIZE
-
-	; Something like memset(0x20000, 0, DATA_ARRAY_SIZE)
-	rep stosb
-
 	; Set up segment for brainfuck code
 	mov ax, 0x07E0
 	mov ds, ax
@@ -28,6 +17,13 @@ bf_interpreter:
 							
 	; Set up brainfuck array pointer
 	xor di, di
+	
+	; Set up data for memset
+	xor ax, ax
+	mov cx, DATA_ARRAY_SIZE
+
+	; Something like memset(0x20000, DATA_ARRAY_SIZE, 0)
+	rep stosb
 
 	; Set up brainfuck loops counter
 	xor cx, cx

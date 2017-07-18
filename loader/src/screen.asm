@@ -16,7 +16,7 @@ print_char:
 	cmp al, 0xA
 	jne .end
 	mov al, 0xD
-	call print_char
+	jmp print_char
 
 	.end:
 		ret

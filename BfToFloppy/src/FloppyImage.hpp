@@ -14,8 +14,8 @@ namespace btf
 		void writeToFile(const std::string& floppyImageFilename);
 
 	private:
-		void writeLoader(const std::string& loaderFilename);
-		int assignCode(const std::string& codeFilename);
+		int writeLoader(const std::string& loaderFilename);
+		int assignCode(const std::string& codeFilename, int offset);
 		void replaceFlagWithMachineCode(int brainfuckCodeSize);
 
 		std::vector<uint8_t> imageFileContent;

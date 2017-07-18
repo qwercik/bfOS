@@ -14,8 +14,8 @@ namespace btf
 	{
 		imageFileContent.assign(FLOPPY_SIZE, 0);
 
-		writeLoader(loaderFilename);
-		int codeSize = assignCode(codeFilename);
+		int loaderSize = writeLoader(loaderFilename);
+		int codeSize = assignCode(codeFilename, loaderSize);
 		replaceFlagWithMachineCode(codeSize);
 	}
 
@@ -29,7 +29,7 @@ namespace btf
 		std::copy(imageFileContent.begin(), imageFileContent.end(), std::ostreambuf_iterator<char>(imageFile));
 	}
 
-	void FloppyImage::writeLoader(const std::string& loaderFilename)
+	int FloppyImage::writeLoader(const std::string& loaderFilename)
 	{
 		std::ifstream loaderFile(loaderFilename, std::ios::binary);
 
@@ -37,12 +37,12 @@ namespace btf
 			throw Error("Couldn\'t find MBR file: " + loaderFilename);
 
 		std::vector<char> loader((std::istreambuf_iterator<char>(loaderFile)), std::istreambuf_iterator<char>());
-		
-		imageFileContent.erase(imageFileContent.begin(), imageFileContent.begin() + loader.size());
-		imageFileContent.insert(imageFileContent.begin(), loader.begin(), loader.end());
+		std::copy(loader.begin(), loader.end(), imageFileContent.begin());
+
+		return loader.size();
 	}
 	
-	int FloppyImage::assignCode(const std::string& codeFilename)
+	int FloppyImage::assignCode(const std::string& codeFilename, int offset)
 	{
 		std::ifstream codeFile(codeFilename);
 
@@ -58,8 +58,7 @@ namespace btf
 		if (code.size() > 65536)
 			throw Error("Accteptable brainfuck source code size is 64KiB");
 		
-		imageFileContent.erase(imageFileContent.begin() + 512, imageFileContent.begin() + 512 + code.size());
-		imageFileContent.insert(imageFileContent.begin() + 512, code.begin(), code.end());
+		std::copy(code.begin(), code.end(), imageFileContent.begin() + offset); 
 
 		return code.size();
 	}
@@ -82,7 +81,6 @@ namespace btf
 		
 		std::vector<uint8_t> opcode = {0xB0, static_cast<uint8_t>(sectorsAmount & 0xFF), 0x90, 0x90};
 		
-		imageFileContent.erase(iterator, iterator + 4);
-		imageFileContent.insert(iterator, opcode.begin(), opcode.end());
+		std::copy(opcode.begin(), opcode.end(), iterator);
 	}
 }
