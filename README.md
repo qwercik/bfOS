@@ -54,3 +54,5 @@ You should get file floppy.img. It's floppy image file. You can boot from this i
 
 Good luck developing your OS in brainfuck ;)
 
+# Acknowledgements
+- Patrycjerz
